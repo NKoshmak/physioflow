@@ -80,7 +80,7 @@ export default function Benefits({ data }: BenefitsProps) {
                 src="/images/benefits.webp"
                 alt="Movement therapy mobility pose"
                 fill
-                className="object-cover object-center grayscale contrast-110 brightness-[0.62]"
+                className="object-cover object-center max-lg:object-center lg:object-[84%_30%] xl:object-[78%_34%] min-[1372px]:object-[74%_36%] grayscale contrast-110 brightness-[0.62]"
               />
 
               <div className="absolute inset-0 bg-black/20" />
