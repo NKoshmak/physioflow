@@ -6,7 +6,7 @@ import {
   useScroll,
   useTransform,
 } from "framer-motion";
-import { useEffect, useRef, useState } from "react";
+import { useRef } from "react";
 
 type BenefitItem = {
   number?: string;
@@ -43,7 +43,7 @@ function BenefitCardStatic({
   );
 }
 
-function BenefitCardDesktop({
+function BenefitCardAnimated({
   benefit,
   index,
 }: {
@@ -57,11 +57,6 @@ function BenefitCardDesktop({
     offset: ["start 0.92", "end 0.08"],
   });
 
-  const opacity = useTransform(
-    scrollYProgress,
-    [0, 0.25, 0.5, 0.75, 1],
-    [0.32, 0.62, 1, 0.62, 0.32],
-  );
   const x = useTransform(
     scrollYProgress,
     [0, 0.35, 0.5, 0.65, 1],
@@ -72,10 +67,38 @@ function BenefitCardDesktop({
     [0, 0.5, 1],
     [12, 0, -8],
   );
-  const numberOpacity = useTransform(
+  const numberColor = useTransform(
     scrollYProgress,
     [0, 0.4, 0.5, 0.6, 1],
-    [0.22, 0.4, 1, 0.4, 0.22],
+    [
+      "rgba(255, 255, 255, 0.22)",
+      "rgba(255, 255, 255, 0.4)",
+      "rgb(255, 255, 255)",
+      "rgba(255, 255, 255, 0.4)",
+      "rgba(255, 255, 255, 0.22)",
+    ],
+  );
+  const titleColor = useTransform(
+    scrollYProgress,
+    [0, 0.25, 0.5, 0.75, 1],
+    [
+      "rgba(242, 242, 242, 0.32)",
+      "rgba(242, 242, 242, 0.62)",
+      "rgb(242, 242, 242)",
+      "rgba(242, 242, 242, 0.62)",
+      "rgba(242, 242, 242, 0.32)",
+    ],
+  );
+  const textColor = useTransform(
+    scrollYProgress,
+    [0, 0.25, 0.5, 0.75, 1],
+    [
+      "rgba(255, 255, 255, 0.18)",
+      "rgba(255, 255, 255, 0.36)",
+      "rgba(255, 255, 255, 0.58)",
+      "rgba(255, 255, 255, 0.36)",
+      "rgba(255, 255, 255, 0.18)",
+    ],
   );
   const numberScale = useTransform(scrollYProgress, [0, 0.5, 1], [0.92, 1, 0.92]);
   const lineScale = useTransform(
@@ -83,22 +106,12 @@ function BenefitCardDesktop({
     [0, 0.45, 0.5, 0.55, 1],
     [0, 0.4, 1, 0.4, 0],
   );
-  const blur = useTransform(
-    scrollYProgress,
-    [0, 0.35, 0.5, 0.65, 1],
-    [3, 1.2, 0, 1.2, 3],
-  );
-  const filter = useTransform(blur, (v) => `blur(${v}px)`);
 
   return (
-    <motion.div
-      ref={ref}
-      style={{ opacity, x, filter }}
-      className={cardClassName}
-    >
+    <motion.div ref={ref} style={{ x }} className={cardClassName}>
       <motion.span
-        style={{ opacity: numberOpacity, scale: numberScale }}
-        className="origin-left font-heading text-sm tracking-[0.22em] text-white"
+        style={{ color: numberColor, scale: numberScale }}
+        className="origin-left font-heading text-sm tracking-[0.22em]"
       >
         {benefit.number ?? String(index + 1).padStart(2, "0")}
       </motion.span>
@@ -110,15 +123,18 @@ function BenefitCardDesktop({
         />
 
         <motion.h3
-          style={{ y: titleY }}
-          className="font-heading text-[30px] font-light leading-tight tracking-[-0.04em] text-[#f2f2f2]"
+          style={{ y: titleY, color: titleColor }}
+          className="font-heading text-[30px] font-light leading-tight tracking-[-0.04em] max-md:text-[26px]"
         >
           {benefit.title}
         </motion.h3>
 
-        <p className="mt-4 max-w-[560px] text-[17px] leading-[1.75] text-white/58">
+        <motion.p
+          style={{ color: textColor }}
+          className="mt-4 max-w-[560px] text-[17px] leading-[1.75] max-md:text-[16px]"
+        >
           {benefit.text}
-        </p>
+        </motion.p>
       </div>
     </motion.div>
   );
@@ -132,22 +148,12 @@ export function BenefitCard({
   index: number;
 }) {
   const prefersReducedMotion = useReducedMotion();
-  const [isMobile, setIsMobile] = useState(false);
 
-  useEffect(() => {
-    const media = window.matchMedia("(max-width: 768px)");
-    const update = () => setIsMobile(media.matches);
-
-    update();
-    media.addEventListener("change", update);
-    return () => media.removeEventListener("change", update);
-  }, []);
-
-  if (prefersReducedMotion || isMobile) {
+  if (prefersReducedMotion) {
     return <BenefitCardStatic benefit={benefit} index={index} />;
   }
 
-  return <BenefitCardDesktop benefit={benefit} index={index} />;
+  return <BenefitCardAnimated benefit={benefit} index={index} />;
 }
 
 export function BenefitCardList({ benefits }: { benefits: BenefitItem[] }) {

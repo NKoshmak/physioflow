@@ -1,5 +1,6 @@
 "use client";
 
+import { cancelFrame, frame } from "framer-motion";
 import Lenis from "lenis";
 import { useEffect } from "react";
 
@@ -9,17 +10,17 @@ export default function SmoothScroll() {
       duration: 1.1,
       smoothWheel: true,
       wheelMultiplier: 0.85,
+      autoRaf: false,
     });
 
-    function raf(time: number) {
-      lenis.raf(time);
-      requestAnimationFrame(raf);
+    function update(data: { timestamp: number }) {
+      lenis.raf(data.timestamp);
     }
 
-    const frame = requestAnimationFrame(raf);
+    frame.update(update, true);
 
     return () => {
-      cancelAnimationFrame(frame);
+      cancelFrame(update);
       lenis.destroy();
     };
   }, []);
